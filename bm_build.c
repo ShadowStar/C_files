@@ -98,24 +98,27 @@ static uint32_t patlen;
 static char *app_name;
 static int ignorecase;
 
-static inline uint8_t *bm_find(struct ts_bm *bm, const uint8_t *text, uint32_t text_len)
+static inline uint8_t *bm_find(struct ts_bm *bm, const uint8_t *text,
+			       uint32_t text_len)
 {
 	unsigned int i;
 	int shift = bm->patlen - 1, bs;
 
 	while (shift < text_len) {
 		for (i = 0; i < bm->patlen; i++)
-			if (text[shift-i] != bm->pattern[bm->patlen-1-i])
+			if ((ignorecase ?
+			     tolower(text[shift - i]) : text[shift - i])
+			    != bm->pattern[bm->patlen - 1 - i])
 				goto next;
 
 		/* London calling... */
-		return (uint8_t *)text + (shift-(bm->patlen-1));
+		return (uint8_t *)text + (shift- (bm->patlen - 1));
 
 next:
-		bs = bm->bad_shift[text[shift-i]];
+		bs = bm->bad_shift[text[shift - i]];
 
 		/* Now jumping to... */
-		shift = max_t(int, shift-i+bs, shift+bm->good_shift[i]);
+		shift = max_t(int, shift - i + bs, shift + bm->good_shift[i]);
 	}
 
 	return NULL;
