@@ -244,7 +244,7 @@ static void compute_prefix_tbl(struct ts_bm *bm)
 	for (i = 0; i < bm->patlen - 1; i++) {
 		bm->bad_shift[bm->pattern[i]] = bm->patlen - 1 - i;
 		if (ignorecase)
-			bm->bad_shift[tolower(bm->pattern[i])]
+			bm->bad_shift[toupper(bm->pattern[i])]
 			    = bm->patlen - 1 - i;
 	}
 
@@ -296,11 +296,7 @@ static struct ts_bm *bm_init(const void *pattern, unsigned int len)
 	bm = calloc(1, priv_size);
 	bm->patlen = len;
 	bm->pattern = (uint8_t *) bm->good_shift + prefix_tbl_len;
-	if (ignorecase)
-		for (i = 0; i < len; i++)
-			bm->pattern[i] = toupper(((uint8_t *)pattern)[i]);
-	else
-		memcpy(bm->pattern, pattern, len);
+	memcpy(bm->pattern, pattern, len);
 	compute_prefix_tbl(bm);
 
 	fprintf(stderr, "%u-%s[%zu]\n", bm->patlen, bm->pattern, priv_size);
